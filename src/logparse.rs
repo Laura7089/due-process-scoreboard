@@ -1,4 +1,5 @@
 use crate::dueprocess::{Team, Biome};
+use std::io::{Read, BufRead, BufReader};
 use regex::Regex;
 
 lazy_static! {
@@ -81,4 +82,13 @@ impl LogEvent {
             None
         }
     }
+}
+
+pub fn parse_logs(log_file: impl Read) -> Vec<LogEvent> {
+    BufReader::new(log_file)
+        .lines()
+        .map(|l| LogEvent::from_line(&l.unwrap()))
+        .filter(|e| e != &None)
+        .map(|e| e.unwrap())
+        .collect()
 }

@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use std::io::{BufRead, BufReader, Read};
 
 lazy_static! {
-    // Won't ccapture a suicide by explosive
+    // TODO: Won't ccapture a suicide by explosive
     static ref KILL_EVENT_REGEX: Regex = Regex::new(r"KillLogUI :: Entry :: <color=(?P<killer_colour>#[0-9A-F]+)><noparse>(?P<killer>.+)</noparse></color> (?P<kill_msg>[A-Z ]+)( <color=#(?P<victim_colour>[0-9A-F]+)><noparse>(?P<victim>.+)</noparse>)?").unwrap();
     static ref MATCH_BEGIN_REGEX: Regex = Regex::new(r"StartOfMatchOverlay :: Local Match ID: (?P<matchid>[a-f0-9\-]+)").unwrap();
     static ref ROUND_LOAD_REGEX: Regex = Regex::new(r": Loading Game Level +\[(?P<biome>[a-zA-Z_]+)\] (?P<level>[A-Za-z ]+) \[[-\d]+\]").unwrap();
@@ -38,6 +38,7 @@ pub enum LogEvent {
 impl LogEvent {
     pub fn from_line(line: &str) -> Option<Self> {
         if MATCH_BEGIN_REGEX.is_match(line) {
+            // TODO: capture match ID
             Some(Self::MatchStart)
         } else if let Some(captures) = ROUND_LOAD_REGEX.captures(line) {
             Some(Self::RoundStart {
@@ -86,7 +87,7 @@ impl LogEvent {
                 // Suicide by grenade/explosive
                 "DESTROYED THEMSELVES" => Self::Kill {
                     killer_team: None,
-                    // No way to determine from the message, needs some other way to indicate
+                    // TODO: No way to determine from the message, needs some other way to indicate
                     victim_team: Team::Attacker,
                     killer: captures["killer"].to_string(),
                     victim: captures["killer"].to_string(),

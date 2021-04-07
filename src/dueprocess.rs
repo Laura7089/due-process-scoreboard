@@ -34,7 +34,7 @@ pub struct Round {
 
 #[derive(Debug)]
 pub struct Match {
-    rounds: Vec<Round>
+    pub rounds: Vec<Round>
 }
 
 impl Match {
@@ -62,10 +62,7 @@ impl Match {
 
         for event in events_iter {
             match event {
-                LogEvent::MatchStart => {
-                    rounds.push(current_round);
-                    break;
-                },
+                LogEvent::MatchStart => break,
                 LogEvent::RoundStart{ level, biome } => {
                     rounds.push(current_round);
                     current_round = Round {
@@ -86,6 +83,7 @@ impl Match {
                 _ => panic!()
             }
         }
+        rounds.push(current_round);
 
         Self { rounds }
     }

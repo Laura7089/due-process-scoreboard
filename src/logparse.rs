@@ -4,7 +4,7 @@ use regex::Regex;
 
 lazy_static! {
     static ref KILL_EVENT_REGEX: Regex = Regex::new(r"KillLogUI :: Entry :: <.+><noparse>(?P<killer>.+)</noparse></color> (?P<kill_msg>[A-Z]+) <.+><noparse>(?P<victim>.+)</noparse>").unwrap();
-    static ref MATCH_BEGIN_REGEX: Regex = Regex::new(r"Connecting to game:").unwrap();
+    static ref MATCH_BEGIN_REGEX: Regex = Regex::new(r"StartOfMatchOverlay :: Local Match ID: (?P<matchid>[a-f0-9\-]+)").unwrap();
     static ref ROUND_LOAD_REGEX: Regex = Regex::new(r": Loading Game Level +\[(?P<biome>[a-zA-Z_]+)\] (?P<level>[A-Za-z ]+) \[[-\d]+\]").unwrap();
 }
 

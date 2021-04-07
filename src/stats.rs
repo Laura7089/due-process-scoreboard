@@ -15,7 +15,7 @@ impl PlayerStats {
         row!["Player Name", "Kills", "Team Kills", "Deaths"]
     }
 
-    pub fn table_row(&self) -> Row {
+    pub fn to_table_row(&self) -> Row {
         let cells = vec![
             Cell::new_align(&self.name, Alignment::LEFT),
             Cell::new_align(&format!("{}", self.enemy_kills), Alignment::RIGHT),

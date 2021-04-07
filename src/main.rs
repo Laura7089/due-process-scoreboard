@@ -3,14 +3,14 @@ extern crate lazy_static;
 #[macro_use]
 extern crate prettytable;
 
-mod logparse;
 mod dueprocess;
+mod logparse;
 mod stats;
 
 use logparse::LogEvent;
 use prettytable::Table;
-use std::path::PathBuf;
 use std::fs::File;
+use std::path::PathBuf;
 
 fn main() {
     let log_path: PathBuf = std::env::args().nth(1).expect("No log file passed").into();

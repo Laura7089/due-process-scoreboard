@@ -1,4 +1,4 @@
-use prettytable::{Cell, Row, format::Alignment};
+use prettytable::{format::Alignment, Cell, Row};
 
 #[derive(Debug, Default)]
 pub struct PlayerStats {
@@ -20,7 +20,13 @@ impl PlayerStats {
             Cell::new_align(&self.name, Alignment::LEFT),
             Cell::new_align(&format!("{}", self.enemy_kills), Alignment::RIGHT),
             Cell::new_align(&format!("{}", self.team_kills), Alignment::RIGHT),
-            Cell::new_align(&format!("{}", self.deaths_to_enemy + self.deaths_to_team + self.suicides), Alignment::RIGHT),
+            Cell::new_align(
+                &format!(
+                    "{}",
+                    self.deaths_to_enemy + self.deaths_to_team + self.suicides
+                ),
+                Alignment::RIGHT,
+            ),
         ];
 
         Row::new(cells)

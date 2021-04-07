@@ -34,7 +34,7 @@ pub struct Round {
 
 #[derive(Debug)]
 pub struct Match {
-    pub rounds: Vec<Round>
+    pub rounds: Vec<Round>,
 }
 
 impl Match {
@@ -45,7 +45,7 @@ impl Match {
         let mut events_iter = events.into_iter();
         loop {
             let event = events_iter.next();
-            if let Some(LogEvent::RoundStart{ level, biome }) = event {
+            if let Some(LogEvent::RoundStart { level, biome }) = event {
                 current_round = Round {
                     winner: Team::Defender,
                     kills: Vec::new(),
@@ -54,16 +54,14 @@ impl Match {
                 };
                 break;
             } else if event == None {
-                return Self {
-                    rounds
-                }
-            } 
+                return Self { rounds };
+            }
         }
 
         for event in events_iter {
             match event {
                 LogEvent::MatchStart => break,
-                LogEvent::RoundStart{ level, biome } => {
+                LogEvent::RoundStart { level, biome } => {
                     rounds.push(current_round);
                     current_round = Round {
                         winner: Team::Defender,
@@ -71,16 +69,19 @@ impl Match {
                         biome: *biome,
                         level: level.clone(),
                     };
-                },
-                LogEvent::Kill{ killer, victim, killer_team, victim_team } => {
-                    current_round.kills.push(Kill {
-                        killer: killer.clone(),
-                        victim: victim.clone(),
-                        killer_team: *killer_team,
-                        victim_team: *victim_team,
-                    })
                 }
-                _ => panic!()
+                LogEvent::Kill {
+                    killer,
+                    victim,
+                    killer_team,
+                    victim_team,
+                } => current_round.kills.push(Kill {
+                    killer: killer.clone(),
+                    victim: victim.clone(),
+                    killer_team: *killer_team,
+                    victim_team: *victim_team,
+                }),
+                _ => panic!(),
             }
         }
         rounds.push(current_round);
@@ -94,7 +95,7 @@ impl Match {
         for round in self.rounds.iter() {
             for kill in round.kills.iter() {
                 let victim_stats = stats.entry(kill.victim.clone()).or_insert(PlayerStats {
-                    name: kill.victim.clone(), 
+                    name: kill.victim.clone(),
                     ..PlayerStats::default()
                 });
 
@@ -110,14 +111,27 @@ impl Match {
 
                 if kill.killer_team == Some(kill.victim_team) {
                     victim_stats.deaths_to_team += 1;
-                    stats.entry(kill.killer.clone()).or_insert(killer_insert).team_kills += 1;
+                    stats
+                        .entry(kill.killer.clone())
+                        .or_insert(killer_insert)
+                        .team_kills += 1;
                 } else {
                     victim_stats.deaths_to_enemy += 1;
-                    stats.entry(kill.killer.clone()).or_insert(killer_insert).enemy_kills += 1;
+                    stats
+                        .entry(kill.killer.clone())
+                        .or_insert(killer_insert)
+                        .enemy_kills += 1;
                 }
             }
         }
 
         stats.drain().map(|(_, v)| v).collect()
+    }
+
+    pub fn starting_teams(&self) -> (Vec<String>, Vec<String>) {
+        let attackers = HashMap::new();
+        let defenders = HashMap::new();
+
+        (attackers.into(), defenders.into())
     }
 }

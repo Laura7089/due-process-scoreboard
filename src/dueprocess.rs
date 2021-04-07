@@ -1,6 +1,6 @@
 use crate::logparse::LogEvent;
 use crate::stats::PlayerStats;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Team {
@@ -129,9 +129,9 @@ impl Match {
     }
 
     pub fn starting_teams(&self) -> (Vec<String>, Vec<String>) {
-        let attackers = HashMap::new();
-        let defenders = HashMap::new();
+        let mut attackers = HashSet::new();
+        let mut defenders = HashSet::new();
 
-        (attackers.into(), defenders.into())
+        (attackers.drain().collect(), defenders.drain().collect())
     }
 }

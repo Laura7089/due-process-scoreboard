@@ -4,11 +4,12 @@ use std::collections::HashMap;
 use std::io::{BufRead, BufReader, Read};
 
 lazy_static! {
-    static ref KILL_EVENT_REGEX: Regex = Regex::new(r"KillLogUI :: Entry :: <color=(?P<killer_colour>#[0-9A-F]+)><noparse>(?P<killer>.+)</noparse></color> (?P<kill_msg>[A-Z]+)( <color=#(?<victim_colour>[0-9A-F]+)><noparse>(?P<victim>.+)</noparse>)?").unwrap();
+    // Won't ccapture a suicide by explosive
+    static ref KILL_EVENT_REGEX: Regex = Regex::new(r"KillLogUI :: Entry :: <color=(?P<killer_colour>#[0-9A-F]+)><noparse>(?P<killer>.+)</noparse></color> (?P<kill_msg>[A-Z ]+)( <color=#(?P<victim_colour>[0-9A-F]+)><noparse>(?P<victim>.+)</noparse>)?").unwrap();
     static ref MATCH_BEGIN_REGEX: Regex = Regex::new(r"StartOfMatchOverlay :: Local Match ID: (?P<matchid>[a-f0-9\-]+)").unwrap();
     static ref ROUND_LOAD_REGEX: Regex = Regex::new(r": Loading Game Level +\[(?P<biome>[a-zA-Z_]+)\] (?P<level>[A-Za-z ]+) \[[-\d]+\]").unwrap();
 
-    static ref TEAMS_COLOURS: HashMap<String, Team> = {
+    static ref TEAMS_COLOURS: HashMap<&'static str, Team> = {
         let mut teams = HashMap::new();
         teams.insert("27DBFFFF", Team::Attacker);
         teams.insert("FF083AEB", Team::Defender);
@@ -76,20 +77,21 @@ impl LogEvent {
                     victim: captures["victim"].to_string(),
                 },
                 // Environmental suicide
-                "ROASTED" => Self::Kill {
+                "ROASTED" | "MELTED" => Self::Kill {
                     killer_team: None,
-                    // Need a way to determine this
-                    victim_team: Team::Attacker,
+                    victim_team: TEAMS_COLOURS[&captures["victim_colour"]],
                     killer: captures["killer"].to_string(),
                     victim: captures["victim"].to_string(),
                 },
                 // Suicide by grenade/explosive
                 "DESTROYED THEMSELVES" => Self::Kill {
                     killer_team: None,
+                    // No way to determine from the message, needs some other way to indicate
                     victim_team: Team::Attacker,
                     killer: captures["killer"].to_string(),
                     victim: captures["killer"].to_string(),
                 },
+                other => panic!("Unknown kill message: {}", other)
             })
         } else {
             None
